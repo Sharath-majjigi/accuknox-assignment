@@ -9,4 +9,4 @@ var(
 	DBConn *gorm.DB
 )
 
-const DNS string = "root:root@tcp(localhost:3306)/notesdb?parseTime=true"
+const DNS string = "admin:Sharath2001@tcp(database-2.cidhjwutum25.ap-southeast-1.rds.amazonaws.com:3306)/notesdb?parseTime=true"
