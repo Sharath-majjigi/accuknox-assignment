@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	_ "fmt"
 	"sharath/database"
 
@@ -101,7 +100,7 @@ func GetAllNotes(c *fiber.Ctx){
 		c.Status(fiber.StatusInternalServerError)
 		return
 	}
-	fmt.Println(existingUser.Notes)
+
 	var notes[] Notes
 	if err:=db.Where("sid= ?",sid).Find(&notes).Error; err!=nil{
 		if err == gorm.ErrRecordNotFound{
@@ -146,4 +145,40 @@ func CreateNote(c *fiber.Ctx){
 		return
 	}
 	c.Status(fiber.StatusOK).JSON(fiber.Map{"Id":note.ID})
+}
+
+func DeleteNote(c *fiber.Ctx){
+	db:=database.DBConn
+	sid:=c.Params("sid")
+	note_id:=c.Params("id")
+
+	var existingUser User
+	if err:= db.Where("sid= ?",sid).First(&existingUser).Error; err!=nil{
+		if err == gorm.ErrRecordNotFound{
+			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error":"Invalid Sid"})
+			return
+		}
+		c.Status(fiber.StatusInternalServerError)
+		return
+	}
+
+	var existingNote Notes
+	if err:= db.Where("id= ?",note_id).First(&existingNote).Error; err!=nil{
+		if err == gorm.ErrRecordNotFound || err == nil {
+			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error":"Invalid Id"})
+			return
+		}
+		c.Status(fiber.StatusInternalServerError)
+		return
+	}
+
+	var existingNotes[]  Notes
+	if err:= db.Where("id= ?",note_id).Where("sid = ?",sid).Delete(&existingNotes).Error; err!=nil{
+		if err == gorm.ErrRecordNotFound{
+			c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error":"Invalid id"})
+			return
+		}
+		c.Status(fiber.StatusInternalServerError)
+		return
+	}
 }
